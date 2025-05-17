@@ -1,0 +1,37 @@
+Try this url : 
+http://api.tsimtech.top/tsim/v1/dataplanList
+Type : GET
+Pre-Request Script: 
+// Load CryptoJS (built-in in Postman)
+const CryptoJS = require('crypto-js');
+ 
+// Replace with actual values
+const tsimAccount = "21877956620d41bbb83f8ec91b91c8b3";
+const tsimSecret = "d42514135e7bf2e579ac631af5a9ef44";
+ 
+// Generate TSIM-NONCE (Random string, length 6-32)
+function generateNonce(length) {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let nonce = '';
+    for (let i = 0; i < length; i++) {
+        nonce += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return nonce;
+}
+ 
+const tsimNonce = generateNonce(16); // Adjust length as needed (between 6-32)
+ 
+// Generate TSIM-TIMESTAMP (Current Unix Timestamp)
+const tsimTimestamp = Math.floor(Date.now() / 1000).toString();
+ 
+// Concatenate the signature string
+const signatureContent = tsimAccount + tsimNonce + tsimTimestamp;
+ 
+// Generate HMACSHA256 Signature using CryptoJS
+const tsimSign = CryptoJS.HmacSHA256(signatureContent, tsimSecret).toString(CryptoJS.enc.Hex);
+ 
+// Set Headers in Postman
+pm.request.headers.add({key: 'TSIM-ACCOUNT', value: tsimAccount});
+pm.request.headers.add({key: 'TSIM-NONCE', value: tsimNonce});
+pm.request.headers.add({key: 'TSIM-TIMESTAMP', value: tsimTimestamp});
+pm.request.headers.add({key: 'TSIM-SIGN', value: tsimSign});
